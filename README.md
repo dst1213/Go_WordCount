@@ -23,7 +23,7 @@
 
 为了演示面向对象和`goroutine`的使用，将基础映射类型封装成了一个统计单词频率的包。在基础映射类型上创建额类型`WordCound`，然后为该类型了实现了关键方法`UpdateFreq()`和`WordFreqCounter()`，其中前者会读取一个文件并统计该文件中的所有单词的词频，后者通过`goroutine`实现了并发统计。其并发逻辑是：对于每一个文件，创建一个`goroutine`，在这个`goroutine`内部调用`UpdateFreq()`方法统计对应文件的词频，当统计完成以后会将映射中每一对键值转化为`Pair`结构发送到`results`通道，并在发送完成时候发送一个空结构体的值到`done`通道以表示自己的任务已经完成。由于`map`映射结构不支持并发写操作，所以通过`result`通道来保证每次只有一个`goroutine`能更新映射。又因为当所有的`goroutine`结束以后，有可能`results`通道中还有没来得及处理的数据，所以在`WordFreqCounter()`的结尾我们又开启了一个`for`循环处理`results`通道中的剩余数据。
 
-在`$GOPATH/src/wordcount`目录中创建文件`wordcount.go`，输入以下源码
+在`$GOPATH/src/go_wordcount/wordcount`目录中创建文件`wordcount.go`，输入以下源码
 ```
 package wordcount
 
@@ -201,7 +201,7 @@ DONE: // 再次启动for循环处理通道中还未处理完的值
     close(done)
 
 }
-然后在$GOPATH目录中创建文件wordfreq.go，输入以下源码:
+然后在`$GOPATH/src/go_wordcount`目录中创建文件`wordfreq.go`，输入以下源码:
 
 package main
 
